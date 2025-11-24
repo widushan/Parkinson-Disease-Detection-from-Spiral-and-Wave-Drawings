@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkinson's Disease Diagnosis</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Parkinson's Disease Diagnosis</h1>
+        <p>Upload a spiral and a wave image to predict whether the condition is 'healthy' or 'parkinson'.</p>
+        
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="spiral">Spiral Image (Grayscale):</label>
+                <input type="file" id="spiral" name="spiral" accept=".png,.jpg,.jpeg" required>
+            </div>
+            <div class="form-group">
+                <label for="wave">Wave Image (RGB):</label>
+                <input type="file" id="wave" name="wave" accept=".png,.jpg,.jpeg" required>
+            </div>
+            <button type="submit">Predict</button>
+        </form>
+        
+        <div id="result" style="display: none;">
+            <h2>Prediction Results</h2>
+            <div id="images" class="image-container"></div>
+            <div id="plot"></div>
+            <div id="diagnosis"></div>
+        </div>
+        <div id="error" style="display: none;"></div>
+    </div>
+    
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const spiralFile = document.getElementById('spiral').files[0];
+            const waveFile = document.getElementById('wave').files[0];
+            
+            const formData = new FormData();
+            formData.append('spiral', spiralFile);
+            formData.append('wave', waveFile);
+            
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            resultDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = 'Loading...';
+            errorDiv.style.display = 'block';
+            
+            try {
+                console.log('Sending request to /predict');
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                console.log('Response received:', response);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    // Display uploaded images
+                    const imagesDiv = document.getElementById('images');
+                    imagesDiv.innerHTML = `
+                        <div class="image-box">
+                            <img src="data:image/png;base64,${data.spiral_image}" alt="Spiral Image">
+                            <p>Uploaded Spiral Image</p>
+                        </div>
+                        <div class="image-box">
+                            <img src="data:image/png;base64,${data.wave_image}" alt="Wave Image">
+                            <p>Uploaded Wave Image</p>
+                        </div>
+                    `;
+                    
+                    // Display plot
+                    document.getElementById('plot').innerHTML = `
+                        <img src="data:image/png;base64,${data.plot}" alt="Prediction Plot">
+                    `;
+                    
+                    // Display diagnosis
+                    document.getElementById('diagnosis').innerHTML = `
+                        <p><strong>Final Diagnosis:</strong> ${data.final_diagnosis} 
+                        (Healthy: ${data.final_probabilities.healthy.toFixed(3)}, 
+                        Parkinson: ${data.final_probabilities.parkinson.toFixed(3)})</p>
+                        <p><strong>Spiral Prediction:</strong> ${data.spiral_prediction} 
+                        (Healthy: ${data.spiral_probabilities.healthy.toFixed(3)}, 
+                        Parkinson: ${data.spiral_probabilities.parkinson.toFixed(3)})</p>
+                        <p><strong>Wave Prediction:</strong> ${data.wave_prediction} 
+                        (Healthy: ${data.wave_probabilities.healthy.toFixed(3)}, 
+                        Parkinson: ${data.wave_probabilities.parkinson.toFixed(3)})</p>
+                    `;
+                    resultDiv.style.display = 'block';
+                    errorDiv.style.display = 'none';
+                } else {
+                    errorDiv.textContent = `Server Error: ${data.error || 'Unknown error'}`;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                errorDiv.textContent = `Error: ${err.message}. Check console for details.`;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

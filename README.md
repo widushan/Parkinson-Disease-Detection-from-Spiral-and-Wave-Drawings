@@ -68,9 +68,9 @@ Detect Parkinson’s Disease using deep learning models (CNN, DenseNet, VGG16) o
 2. Open your browser and go to [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 3. Upload spiral and wave images to get predictions (Healthy or Parkinson)
 
-<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/c892dc46-8dd1-4ae8-9a61-98dc88e9679c" />
+<img width="1906" height="1027" alt="Image" src="https://github.com/user-attachments/assets/9b3d1c7b-57c7-40a5-b872-8696db10a6fa" />
 
-<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/9a71f7dd-7b0b-4244-b67b-81e324d0f86c" />
+<img width="1908" height="1026" alt="Image" src="https://github.com/user-attachments/assets/f6ea591b-5037-49b0-98aa-8bbd6de387c2" />
 ---
 
 ## Dataset Structure
